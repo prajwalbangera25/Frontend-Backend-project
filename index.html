@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Fetch Project</title>
+</head>
+<body>
+
+    <button id="btn">Click here</button>
+    <p id="result"></p>
+
+    <script>
+        document.getElementById("btn").addEventListener("click", async () => {
+            const response = await fetch("http://localhost:5000/user");
+            const data = await response.json();
+            document.getElementById("result").textContent = data.message;
+        });
+    </script>
+</body>
+</html>
