@@ -1,20 +1,66 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Simple Fetch Project</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Store Data</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <button id="btn">Click here</button>
-    <p id="result"></p>
+<div class="container">
+    <h2>Store Data to Backend</h2>
 
-    <script>
-        document.getElementById("btn").addEventListener("click", async () => {
-            const response = await fetch("http://localhost:5000/user");
-            const data = await response.json();
-            document.getElementById("result").textContent = data.message;
+    <div class="input-group">
+        <input type="text" id="inputData" placeholder="Enter something">
+        <button onclick="sendData()">Click Here</button>
+    </div>
+
+    <h4>Stored in user.json:</h4>
+    <div id="display">Loading...</div>
+</div>
+
+<script>
+async function sendData() {
+    const value = document.getElementById('inputData').value;
+
+    if (!value.trim()) {
+        alert("Please enter something!");
+        return;
+    }
+
+    try {
+        const response = await fetch("http://localhost:3000/save", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: value })
         });
-    </script>
+
+        const data = await response.json();
+        console.log("Saved:", data);
+
+        document.getElementById("inputData").value = ""; 
+
+        loadData();
+    } catch (err) {
+        console.error("Error:", err);
+        alert("Backend not running!");
+    }
+}
+
+async function loadData() {
+    try {
+        const res = await fetch("http://localhost:3000/users");
+        const users = await res.json();
+
+        document.getElementById('display').innerText =
+            JSON.stringify(users, null, 2);
+
+    } catch (err) {
+        document.getElementById('display').innerText = "Error loading data";
+    }
+}
+
+loadData();
+</script>
+
 </body>
 </html>

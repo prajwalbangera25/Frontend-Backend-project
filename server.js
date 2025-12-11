@@ -1,13 +1,37 @@
-const express = require("express");
-const cors = require("cors");
+const express = require('express');
+const fs = require('fs');
+const cors = require('cors');
+
 const app = express();
+app.use(cors());
+app.use(express.json());
 
-app.use(cors()); // allow frontend requests
+const DATA_FILE = './user.json';
 
-app.get("/user", (req, res) => {
-    res.json({ message: "Hello from Backend!" });
+if (!fs.existsSync(DATA_FILE)) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify([]));
+}
+
+app.post('/save', (req, res) => {
+    try {
+        const existing = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+        existing.push(req.body);   
+
+        fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2));
+
+        res.json({ message: "Saved!", data: req.body });
+    } catch (err) {
+        res.status(500).json({ error: "Error saving data." });
+    }
 });
 
-app.listen(5000, () => {
-    console.log("Server running on http://localhost:5000");
+app.get('/users', (req, res) => {
+    try {
+        const existing = JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
+        res.json(existing);
+    } catch (err) {
+        res.status(500).json({ error: "Error reading data." });
+    }
 });
+
+app.listen(3000, () => console.log("Backend running on port 3000"));
